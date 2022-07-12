@@ -68,33 +68,33 @@
             font-size: 18pt;
         }
         
-        .word0,
-        .word1 {
+        .word-attribute-1,
+        .word-attribute-2 {
             color: #2a2;
             height: 1em;
         }
         
-        .word2,
-        .word3 {
+        .word-object-1,
+        .word-object-2 {
             margin: 0;
             color: #a2a;
         }
         
-        .word0 {
+        .word-attribute-1 {
             top: 0;
             transform: rotateZ(180deg);
         }
         
-        .word1 {
+        .word-attribute-2 {
             bottom: 0;
         }
         
-        .word2 {
+        .word-object-1 {
             right: 10px;
             transform: rotateZ(90deg);
         }
         
-        .word3 {
+        .word-object-2 {
             left: 10px;
             transform: rotateZ(-90deg);
         }
@@ -127,8 +127,9 @@
 
             if (data.length > 1) {
                 //answer card
+                const wordTags = ["attribute-1", "attribute-2", "object-1", "object-2"];
                 data.slice(0, 4).map((word, index) => {
-                    card.append(`<div class="word word${index}">${word}</div>`);
+                    card.append(`<div class="word word-${wordTags[index]}">${word}</div>`);
                 });
             } else {
                 //question card
