@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        #container {
+            font-size: 0;
+            text-align: center;
+        }
+        
+        .label {
+            font-weight: 700;
+            margin-top: 20px;
+        }
+        
+        .header {
+            font-weight: 700;
+            font-size: 1.2em
+        }
+        
+        .page {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+        }
+        
+        .card {
+            border: solid 1px #222;
+            background-color: white;
+            aspect-ratio: 1;
+            position: relative;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        
+        .word {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            line-height: 1em;
+            margin: 10px 0;
+        }
+        
+        .quest {
+            margin: 0;
+            padding: 3em 10px;
+            height: 0;
+        }
+        
+        .quest span {
+            color: #f48;
+        }
+        
+        .word0,
+        .word1 {
+            color: #2a2;
+            height: 1em;
+        }
+        
+        .word2,
+        .word3 {
+            margin: 0;
+            color: #a2a;
+        }
+        
+        .word0 {
+            top: 0;
+            transform: rotateZ(180deg);
+        }
+        
+        .word1 {
+            bottom: 0;
+        }
+        
+        .word2 {
+            right: 10px;
+            transform: rotateZ(90deg);
+        }
+        
+        .word3 {
+            left: 10px;
+            transform: rotateZ(-90deg);
+        }
+        
+        @media print {
+            body {
+                margin: 0;
+            }
+            .no-print,
+            .no-print * {
+                display: none !important;
+            }
+            .page {
+                width: 200mm;
+                margin: 20px auto;
+                page-break-after: always;
+            }
+            .card {
+                font-size: 14pt;
+            }
+            .word {
+                margin: 2mm 0;
+            }
+            .word0,
+            .word1 {}
+        }
+    </style>
+</head>
+
+<body>
+    <div id="form" class="no-print">
+        <textarea type='text' id='input' placeholder="paste CSV"></textarea>
+        <button onclick='loadFile(false);'>Generate</button>
+    </div>
+    <div id="container"></div>
+    <script type="text/javascript">
+        function generateCard(data) {
+            const card = $(`<div class="card"></div>`);
+
+            if (data.length > 1) {
+                //answer card
+                data.map((word, index) => {
+                    card.append(`<div class="word word${index}">${word}</div>`);
+                });
+            } else {
+                //question card
+                card.append(`<div class="word quest">How <span>${data[0]}</span> is...?</div>`);
+            }
+            return card;
+        }
+
+        function generate(data) {
+            const c = $('#container');
+            c.empty();
+
+            const chunkSize = 12;
+            for (let i = 0; i < data.length / chunkSize; i++) {
+                const chunk = data.slice(chunkSize * i, chunkSize * (i + 1));
+                const p = $('<div class="page"></div>');
+                chunk.map((card) => {
+                    p.append(generateCard(card));
+                });
+                c.append(p);
+            }
+        }
+
+        function loadFile() {
+            const input = $('#input');
+            let pairs = input.val().split('\n');
+            pairs = pairs.map((pair) => pair.split(","));
+            generate(pairs);
+        }
+    </script>
+</body>
+
+</html>
