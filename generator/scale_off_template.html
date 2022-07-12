@@ -127,7 +127,7 @@
 
             if (data.length > 1) {
                 //answer card
-                data.map((word, index) => {
+                data.slice(0, 4).map((word, index) => {
                     card.append(`<div class="word word${index}">${word}</div>`);
                 });
             } else {
