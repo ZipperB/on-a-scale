@@ -62,7 +62,10 @@
         }
         
         .quest span {
+            display: block;
+            margin: 0.5em;
             color: #f48;
+            font-size: 18pt;
         }
         
         .word0,
@@ -129,7 +132,7 @@
                 });
             } else {
                 //question card
-                card.append(`<div class="word quest">How <span>${data[0]}</span> is...?</div>`);
+                card.append(`<div class="word quest">On a scale of 1&nbsp;to&nbsp;10 how <span>${data[0]}</span> is a ...?</div>`);
             }
             return card;
         }
