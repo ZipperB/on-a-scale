@@ -46,6 +46,17 @@
             text-align: center;
             text-transform: uppercase;
         }
+
+        .answer::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 100%;
+            width: calc(100% * 1.414);
+            border-top: solid 1px #000;
+            transform: rotate(-45deg);
+            transform-origin: 0 0;
+        }
         
         .word {
             position: absolute;
@@ -149,6 +160,7 @@
 
             if (data.length > 1) {
                 //answer card
+                card.addClass("answer");
                 const wordTags = ["attribute-1", "attribute-2", "object-1", "object-2"];
                 data.slice(0, 4).map((word, index) => {
                     const text_class = word.length > 12 ? ` class="multi"` : "";
