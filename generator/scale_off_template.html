@@ -150,12 +150,16 @@
 
 <body>
     <div id="form" class="no-print">
-        <textarea type='text' id='input' placeholder="paste CSV"></textarea>
+        <textarea type='text' id='input' placeholder="paste CSV"></textarea><br>
+        <input type="radio" id="lang_en" name="language" value="en" checked>
+        <label for="lang_en">English</label><br>
+        <input type="radio" id="lang_cz" name="language" value="cz">
+        <label for="lang_cz">Česky</label><br>
         <button onclick='loadFile(false);'>Generate</button>
     </div>
     <div id="container"></div>
     <script type="text/javascript">
-        function generateCard(data) {
+        function generateCard(data, language) {
             const card = $(`<div class="card"></div>`);
 
             if (data.length > 1) {
@@ -168,12 +172,19 @@
                 });
             } else {
                 //question card
-                card.append(`<div class="word quest">On a scale of 1&nbsp;to&nbsp;10 how <span>${data[0]}</span> is a ...?</div>`);
+                switch (language) {
+                    case "cz":
+                        card.append(`<div class="word quest">Od 1&nbsp;do&nbsp;10 jak <span>${data[0]}</span> je ...?</div>`);
+                        break;
+                    case "en":
+                    default:
+                        card.append(`<div class="word quest">On a scale of 1&nbsp;to&nbsp;10 how <span>${data[0]}</span> is a ...?</div>`);
+                }
             }
             return card;
         }
 
-        function generate(data) {
+        function generate(data, language) {
             const c = $('#container');
             c.empty();
 
@@ -182,7 +193,7 @@
                 const chunk = data.slice(chunkSize * i, chunkSize * (i + 1));
                 const p = $('<div class="page"></div>');
                 chunk.map((card) => {
-                    p.append(generateCard(card));
+                    p.append(generateCard(card, language));
                 });
                 c.append(p);
             }
@@ -190,9 +201,10 @@
 
         function loadFile() {
             const input = $('#input');
+            const language = $('input[name="language"]:checked').val();
             let pairs = input.val().split('\n');
             pairs = pairs.map((pair) => pair.split(","));
-            generate(pairs);
+            generate(pairs, language);
         }
     </script>
 </body>
