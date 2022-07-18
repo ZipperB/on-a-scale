@@ -171,7 +171,10 @@
                     const text_class = word.length > 12 ? ` class="multi"` : "";
                     card.append(`<div class="word word-${wordTags[index]}"><div class="wrap-left"></div><div class="wrap-right"></div><p${text_class}>${word}</p></div>`);
                 });
-            } else {
+                return card;
+            }
+
+            if (data.length == 1 && data[0].length > 0) {
                 //question card
                 switch (language) {
                     case "cz":
@@ -181,7 +184,9 @@
                     default:
                         card.append(`<div class="word quest">On a scale of 1&nbsp;to&nbsp;10 how <span>${data[0]}</span> is a ...?</div>`);
                 }
+                return card;
             }
+
             return card;
         }
 
