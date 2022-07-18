@@ -165,7 +165,8 @@
         <label for="lang_en">English</label><br>
         <input type="radio" id="lang_cz" name="language" value="cz">
         <label for="lang_cz">Česky</label><br>
-        <button onclick='loadFile(false);'>Generate</button>
+        <button onclick='loadFile(true);'>Generate</button>
+        <button onclick='loadFile(false);'>Other components</button>
     </div>
     <div id="container"></div>
     <script type="text/javascript">
@@ -220,11 +221,38 @@
             }
         }
 
-        function loadFile() {
-            const input = $('#input');
+        function loadInput(useUserText) {
+            if (useUserText) {
+                return $('#input').val().split('\n');
+            }
+
+            const chunkSize = 12;
+            const valueCardCallback = (value) => Number(value).toString();
+            const blankCard = "";
+            const blankQuestion = "&nbsp;";
+            const blankAnswer = " , , , ";
+
+            const value_min = -3;
+            const value_max = 13;
+
+            let input = [];
+
+            const values_count = value_max - value_min + 1;
+            const values_page_spare_count = (chunkSize - (values_count % chunkSize)) % chunkSize;
+            const values = Array.from({length: values_count}, (_, i) => valueCardCallback(i + value_min))
+                .concat(Array.from({length: values_page_spare_count}, () => blankCard));
+            input = input.concat(values);
+
+            input = input.concat(Array.from({length: chunkSize}, () => blankQuestion));
+            input = input.concat(Array.from({length: chunkSize}, () => blankAnswer));
+
+            return input;
+        }
+
+        function loadFile(useUserText) {
+            const input = loadInput(useUserText);
             const language = $('input[name="language"]:checked').val();
-            let pairs = input.val().split('\n');
-            pairs = pairs.map((pair) => pair.split(","));
+            const pairs = input.map((pair) => pair.split(","));
             generate(pairs, language);
         }
     </script>
