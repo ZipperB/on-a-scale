@@ -106,6 +106,10 @@
             transform: translate(-50%, -50%);
             font-size: 108pt;
         }
+
+        .flippable {
+            text-decoration: underline;
+        }
         
         .word-attribute-1,
         .word-attribute-2 {
@@ -186,7 +190,10 @@
 
             if (data.length == 1 && data[0].length > 0 && !isNaN(data[0])) {
                 //value card
-                card.append(`<div class="value">${data[0]}</div>`);
+                var value = $(`<div class="value">${data[0]}</div>`);
+                if ([6, 9].indexOf(Number(data[0])) > -1)
+                    value.addClass("flippable");
+                card.append(value);
                 return card;
             }
 
