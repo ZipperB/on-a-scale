@@ -180,11 +180,31 @@
     </div>
     <div id="container"></div>
     <script type="text/javascript">
+        const CardType = {
+            blank: Symbol("blank"),
+            question: Symbol("question"),
+            answer: Symbol("answer"),
+            value: Symbol("value"),
+        };
+
+        function getCardTypeFromCardData(data) {
+            if (data.length == 1 && data[0].length > 0 && isNaN(data[0]))
+                return CardType.question;
+
+            if (data.length > 1)
+                return CardType.answer;
+
+            if (data.length == 1 && data[0].length > 0 && !isNaN(data[0]))
+                return CardType.value;
+
+            return CardType.blank;
+        }
+
         function generateCard(data, language) {
+            const cardType = getCardTypeFromCardData(data);
             const card = $(`<div class="card"></div>`);
 
-            if (data.length > 1) {
-                //answer card
+            if (cardType === CardType.answer) {
                 card.addClass("answer");
                 const wordTags = ["attribute-1", "attribute-2", "object-1", "object-2"];
                 data.slice(0, 4).map((word, index) => {
@@ -194,8 +214,7 @@
                 return card;
             }
 
-            if (data.length == 1 && data[0].length > 0 && !isNaN(data[0])) {
-                //value card
+            if (cardType === CardType.value) {
                 var value = $(`<div class="value">${data[0]}</div>`);
                 if ([6, 9].indexOf(Number(data[0])) > -1)
                     value.addClass("flippable");
@@ -203,8 +222,7 @@
                 return card;
             }
 
-            if (data.length == 1 && data[0].length > 0) {
-                //question card
+            if (cardType === CardType.question) {
                 switch (language) {
                     case "cz":
                         card.append(`<div class="word quest">Od 1&nbsp;do&nbsp;10 jak <span>${data[0]}</span> je ...?</div>`);
@@ -216,6 +234,7 @@
                 return card;
             }
 
+            // cardType === CardType.blank
             return card;
         }
 
