@@ -7,6 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        const TextSource = {
+            user: Symbol("user"),
+            userAssets: Symbol("userAssets"),
+            components: Symbol("components"),
+        };
+    </script>
 
     <style>
         * {
@@ -34,6 +41,12 @@
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(4, 1fr);
         }
+
+        .assets .page {
+            width: 2720px; /* = 16 * 170px */
+            grid-template-columns: repeat(16, 1fr);
+            grid-template-rows: repeat(16, 1fr);
+        }
         
         .card {
             border: solid 1px #222;
@@ -45,6 +58,10 @@
             font-weight: 700;
             text-align: center;
             text-transform: uppercase;
+        }
+
+        .assets .card {
+            font-size: 14px;
         }
 
         .answer::after {
@@ -96,6 +113,10 @@
             color: #f48;
             font-size: 18pt;
             line-height: 1.2em;
+        }
+
+        .assets .quest span {
+            font-size: 18px;
         }
 
         .value {
@@ -169,16 +190,43 @@
         <label for="lang_en">English</label><br>
         <input type="radio" id="lang_cz" name="language" value="cz">
         <label for="lang_cz">Česky</label><br>
-        <button onclick='loadFile(true);'>Generate</button>
-        <button onclick='loadFile(false);'>Other components</button>
+        <button onclick='loadFile(TextSource.user);'>Generate</button>
+        <button onclick='loadFile(TextSource.userAssets);'>Generate Assets</button>
+        <button onclick='loadFile(TextSource.components);'>Other components</button>
     </div>
     <div id="container"></div>
     <script type="text/javascript">
+        const CardType = {
+            blank: Symbol("blank"),
+            question: Symbol("question"),
+            answer: Symbol("answer"),
+            value: Symbol("value"),
+        };
+        const CardTypeOrder = [
+            CardType.question,
+            CardType.answer,
+            CardType.value,
+            CardType.blank,
+        ].reduce((res, cardType, index) => { res[cardType] = index; return res; }, {});
+
+        function getCardTypeFromCardData(data) {
+            if (data.length == 1 && data[0].length > 0 && isNaN(data[0]))
+                return CardType.question;
+
+            if (data.length > 1)
+                return CardType.answer;
+
+            if (data.length == 1 && data[0].length > 0 && !isNaN(data[0]))
+                return CardType.value;
+
+            return CardType.blank;
+        }
+
         function generateCard(data, language) {
+            const cardType = getCardTypeFromCardData(data);
             const card = $(`<div class="card"></div>`);
 
-            if (data.length > 1) {
-                //answer card
+            if (cardType === CardType.answer) {
                 card.addClass("answer");
                 const wordTags = ["attribute-1", "attribute-2", "object-1", "object-2"];
                 data.slice(0, 4).map((word, index) => {
@@ -188,8 +236,7 @@
                 return card;
             }
 
-            if (data.length == 1 && data[0].length > 0 && !isNaN(data[0])) {
-                //value card
+            if (cardType === CardType.value) {
                 var value = $(`<div class="value">${data[0]}</div>`);
                 if ([6, 9].indexOf(Number(data[0])) > -1)
                     value.addClass("flippable");
@@ -197,8 +244,7 @@
                 return card;
             }
 
-            if (data.length == 1 && data[0].length > 0) {
-                //question card
+            if (cardType === CardType.question) {
                 switch (language) {
                     case "cz":
                         card.append(`<div class="word quest">Od 1&nbsp;do&nbsp;10 jak <span>${data[0]}</span> je ...?</div>`);
@@ -210,29 +256,41 @@
                 return card;
             }
 
+            // cardType === CardType.blank
             return card;
         }
 
-        function generate(data, language) {
+        function generate(data, language, isAssets) {
             const c = $('#container');
             c.empty();
+            c.removeClass();
 
-            const chunkSize = 12;
-            for (let i = 0; i < data.length / chunkSize; i++) {
-                const chunk = data.slice(chunkSize * i, chunkSize * (i + 1));
+            if (isAssets) {
+                c.addClass('assets');
+            }
+
+            const chunkMaxSize = isAssets ? 16 * 16 : 12;
+            let chunkOffset = 0;
+            while (chunkOffset < data.length) {
+                let chunk = data.slice(chunkOffset, chunkOffset + chunkMaxSize);
+                if (isAssets) {
+                    const chunkCardType = getCardTypeFromCardData(chunk[0]);
+                    chunk = chunk.filter((card) => getCardTypeFromCardData(card) === chunkCardType);
+                }
                 const p = $('<div class="page"></div>');
                 chunk.map((card) => {
                     p.append(generateCard(card, language));
                 });
                 c.append(p);
+                chunkOffset += chunk.length;
             }
         }
 
-        function loadInput(useUserText) {
-            if (useUserText) {
-                return $('#input').val().split('\n');
-            }
+        function loadUserInput() {
+            return $('#input').val().split('\n');
+        }
 
+        function loadComponentsInput() {
             const chunkSize = 12;
             const valueCardCallback = (value) => Number(value).toString();
             const blankCard = "";
@@ -256,11 +314,22 @@
             return input;
         }
 
-        function loadFile(useUserText) {
-            const input = loadInput(useUserText);
+        function loadInput(textSource) {
+            if (textSource === TextSource.components) {
+                return loadComponentsInput();
+            }
+
+            return loadUserInput();
+        }
+
+        function loadFile(textSource) {
+            const input = loadInput(textSource);
             const language = $('input[name="language"]:checked').val();
             const pairs = input.map((pair) => pair.split(","));
-            generate(pairs, language);
+            if (textSource === TextSource.user || textSource === TextSource.userAssets) {
+                pairs.sort((p1, p2) => CardTypeOrder[getCardTypeFromCardData(p1)] - CardTypeOrder[getCardTypeFromCardData(p2)]);
+            }
+            generate(pairs, language, textSource === TextSource.userAssets);
         }
     </script>
 </body>
