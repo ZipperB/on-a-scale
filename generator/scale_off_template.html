@@ -10,6 +10,7 @@
     <script type="text/javascript">
         const TextSource = {
             user: Symbol("user"),
+            userAssets: Symbol("userAssets"),
             components: Symbol("components"),
         };
     </script>
@@ -176,6 +177,7 @@
         <input type="radio" id="lang_cz" name="language" value="cz">
         <label for="lang_cz">Česky</label><br>
         <button onclick='loadFile(TextSource.user);'>Generate</button>
+        <button onclick='loadFile(TextSource.userAssets);'>Generate Assets</button>
         <button onclick='loadFile(TextSource.components);'>Other components</button>
     </div>
     <div id="container"></div>
@@ -244,18 +246,24 @@
             return card;
         }
 
-        function generate(data, language) {
+        function generate(data, language, isAssets) {
             const c = $('#container');
             c.empty();
 
-            const chunkSize = 12;
-            for (let i = 0; i < data.length / chunkSize; i++) {
-                const chunk = data.slice(chunkSize * i, chunkSize * (i + 1));
+            const chunkMaxSize = isAssets ? 16 * 16 : 12;
+            let chunkOffset = 0;
+            while (chunkOffset < data.length) {
+                let chunk = data.slice(chunkOffset, chunkOffset + chunkMaxSize);
+                if (isAssets) {
+                    const chunkCardType = getCardTypeFromCardData(chunk[0]);
+                    chunk = chunk.filter((card) => getCardTypeFromCardData(card) === chunkCardType);
+                }
                 const p = $('<div class="page"></div>');
                 chunk.map((card) => {
                     p.append(generateCard(card, language));
                 });
                 c.append(p);
+                chunkOffset += chunk.length;
             }
         }
 
@@ -299,10 +307,10 @@
             const input = loadInput(textSource);
             const language = $('input[name="language"]:checked').val();
             const pairs = input.map((pair) => pair.split(","));
-            if (textSource === TextSource.user) {
+            if (textSource === TextSource.user || textSource === TextSource.userAssets) {
                 pairs.sort((p1, p2) => CardTypeOrder[getCardTypeFromCardData(p1)] - CardTypeOrder[getCardTypeFromCardData(p2)]);
             }
-            generate(pairs, language);
+            generate(pairs, language, textSource === TextSource.userAssets);
         }
     </script>
 </body>
