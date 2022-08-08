@@ -41,6 +41,12 @@
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(4, 1fr);
         }
+
+        .assets .page {
+            width: 2720px; /* = 16 * 170px */
+            grid-template-columns: repeat(16, 1fr);
+            grid-template-rows: repeat(16, 1fr);
+        }
         
         .card {
             border: solid 1px #222;
@@ -52,6 +58,10 @@
             font-weight: 700;
             text-align: center;
             text-transform: uppercase;
+        }
+
+        .assets .card {
+            font-size: 14px;
         }
 
         .answer::after {
@@ -103,6 +113,10 @@
             color: #f48;
             font-size: 18pt;
             line-height: 1.2em;
+        }
+
+        .assets .quest span {
+            font-size: 18px;
         }
 
         .value {
@@ -249,6 +263,11 @@
         function generate(data, language, isAssets) {
             const c = $('#container');
             c.empty();
+            c.removeClass();
+
+            if (isAssets) {
+                c.addClass('assets');
+            }
 
             const chunkMaxSize = isAssets ? 16 * 16 : 12;
             let chunkOffset = 0;
