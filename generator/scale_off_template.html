@@ -186,6 +186,12 @@
             answer: Symbol("answer"),
             value: Symbol("value"),
         };
+        const CardTypeOrder = [
+            CardType.question,
+            CardType.answer,
+            CardType.value,
+            CardType.blank,
+        ].reduce((res, cardType, index) => { res[cardType] = index; return res; }, {});
 
         function getCardTypeFromCardData(data) {
             if (data.length == 1 && data[0].length > 0 && isNaN(data[0]))
@@ -293,6 +299,9 @@
             const input = loadInput(textSource);
             const language = $('input[name="language"]:checked').val();
             const pairs = input.map((pair) => pair.split(","));
+            if (textSource === TextSource.user) {
+                pairs.sort((p1, p2) => CardTypeOrder[getCardTypeFromCardData(p1)] - CardTypeOrder[getCardTypeFromCardData(p2)]);
+            }
             generate(pairs, language);
         }
     </script>
