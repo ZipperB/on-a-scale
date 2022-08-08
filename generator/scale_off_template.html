@@ -234,11 +234,11 @@
             }
         }
 
-        function loadInput(textSource) {
-            if (textSource === TextSource.user) {
-                return $('#input').val().split('\n');
-            }
+        function loadUserInput() {
+            return $('#input').val().split('\n');
+        }
 
+        function loadComponentsInput() {
             const chunkSize = 12;
             const valueCardCallback = (value) => Number(value).toString();
             const blankCard = "";
@@ -260,6 +260,14 @@
             input = input.concat(Array.from({length: chunkSize}, () => blankAnswer));
 
             return input;
+        }
+
+        function loadInput(textSource) {
+            if (textSource === TextSource.components) {
+                return loadComponentsInput();
+            }
+
+            return loadUserInput();
         }
 
         function loadFile(textSource) {
