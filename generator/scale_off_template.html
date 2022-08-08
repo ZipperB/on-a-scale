@@ -7,6 +7,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        const TextSource = {
+            user: Symbol("user"),
+            components: Symbol("components"),
+        };
+    </script>
 
     <style>
         * {
@@ -169,8 +175,8 @@
         <label for="lang_en">English</label><br>
         <input type="radio" id="lang_cz" name="language" value="cz">
         <label for="lang_cz">Česky</label><br>
-        <button onclick='loadFile(true);'>Generate</button>
-        <button onclick='loadFile(false);'>Other components</button>
+        <button onclick='loadFile(TextSource.user);'>Generate</button>
+        <button onclick='loadFile(TextSource.components);'>Other components</button>
     </div>
     <div id="container"></div>
     <script type="text/javascript">
@@ -228,8 +234,8 @@
             }
         }
 
-        function loadInput(useUserText) {
-            if (useUserText) {
+        function loadInput(textSource) {
+            if (textSource === TextSource.user) {
                 return $('#input').val().split('\n');
             }
 
@@ -256,8 +262,8 @@
             return input;
         }
 
-        function loadFile(useUserText) {
-            const input = loadInput(useUserText);
+        function loadFile(textSource) {
+            const input = loadInput(textSource);
             const language = $('input[name="language"]:checked').val();
             const pairs = input.map((pair) => pair.split(","));
             generate(pairs, language);
