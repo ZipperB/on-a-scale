@@ -33,6 +33,10 @@
             font-weight: 700;
             font-size: 1.2em
         }
+
+        #question_text {
+            width: 25em;
+        }
         
         .page {
             width: 180mm;
@@ -198,6 +202,19 @@
         <label for="platform_pnp">Print and Play</label><br>
         <input type="radio" id="platform_assets" name="platform" value="assets">
         <label for="platform_assets">Screentop assets</label><br>
+        <div id="question_presets">
+            <div id="questions_en">
+                <button onclick='setQuestion("en", 0);'>Preset 1</button>
+                <button onclick='setQuestion("en", 1);'>Preset 2</button>
+            </div>
+            <div id="questions_cz">
+                <button onclick='setQuestion("cz", 0);'>Preset 1</button>
+                <button onclick='setQuestion("cz", 1);'>Preset 2</button>
+                <button onclick='setQuestion("cz", 2);'>Preset 3</button>
+                <button onclick='setQuestion("cz", 3);'>Preset 4</button>
+            </div>
+        </div>
+        <input type='text' id='question_text' placeholder="Question text"><br>
         <button onclick='loadFile(TextSource.user);'>Generate</button>
         <button onclick='loadFile(TextSource.components);'>Other components</button>
     </div>
@@ -343,6 +360,29 @@
             }
             generate(pairs, language, platform);
         }
+
+        function showQuestionPresets(language) {
+            $('#question_presets div').hide();
+            $(`#questions_${language}`).show();
+            setQuestion(language, 0);
+        }
+
+        function setQuestion(language, preset_index) {
+            const question_presets = {
+                'en': ['On a scale of 1&nbsp;to&nbsp;10 how', 'How'],
+                'cz': ['Od 1&nbsp;do&nbsp;10 jak', 'Od 1&nbsp;do&nbsp;10 jak moc', 'Jak', 'Jak moc'],
+            };
+
+            $('input#question_text').val(question_presets[language][preset_index]);
+        }
+
+        $(function() {
+            $('input[name="language"]').change(function () {
+                showQuestionPresets(this.value);
+            });
+
+            showQuestionPresets($('input[name="language"]:checked').val());
+        });
     </script>
 </body>
 
