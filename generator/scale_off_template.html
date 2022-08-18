@@ -128,6 +128,10 @@
             font-size: 108pt;
         }
 
+        .assets .value {
+            font-size: 108px;
+        }
+
         .flippable {
             text-decoration: underline;
         }
@@ -294,7 +298,8 @@
             return $('#input').val().split('\n');
         }
 
-        function loadComponentsInput() {
+        function loadComponentsInput(platform) {
+            const isPnp = platform === "pnp";
             const chunkSize = 12;
             const valueCardCallback = (value) => Number(value).toString();
             const blankCard = "";
@@ -307,29 +312,31 @@
             let input = [];
 
             const values_count = value_max - value_min + 1;
-            const values_page_spare_count = (chunkSize - (values_count % chunkSize)) % chunkSize;
+            const values_page_spare_count = isPnp ? (chunkSize - (values_count % chunkSize)) % chunkSize : 0;
             const values = Array.from({length: values_count}, (_, i) => valueCardCallback(i + value_min))
                 .concat(Array.from({length: values_page_spare_count}, () => blankCard));
             input = input.concat(values);
 
-            input = input.concat(Array.from({length: chunkSize}, () => blankQuestion));
-            input = input.concat(Array.from({length: chunkSize}, () => blankAnswer));
+            if (isPnp) {
+                input = input.concat(Array.from({length: chunkSize}, () => blankQuestion));
+                input = input.concat(Array.from({length: chunkSize}, () => blankAnswer));
+            }
 
             return input;
         }
 
-        function loadInput(textSource) {
+        function loadInput(textSource, platform) {
             if (textSource === TextSource.components) {
-                return loadComponentsInput();
+                return loadComponentsInput(platform);
             }
 
             return loadUserInput();
         }
 
         function loadFile(textSource) {
-            const input = loadInput(textSource);
-            const language = $('input[name="language"]:checked').val();
             const platform = $('input[name="platform"]:checked').val();
+            const input = loadInput(textSource, platform);
+            const language = $('input[name="language"]:checked').val();
             const pairs = input.map((pair) => pair.split(","));
             if (textSource === TextSource.user) {
                 pairs.sort((p1, p2) => CardTypeOrder[getCardTypeFromCardData(p1)] - CardTypeOrder[getCardTypeFromCardData(p2)]);
