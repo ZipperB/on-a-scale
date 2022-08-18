@@ -10,7 +10,6 @@
     <script type="text/javascript">
         const TextSource = {
             user: Symbol("user"),
-            userAssets: Symbol("userAssets"),
             components: Symbol("components"),
         };
     </script>
@@ -191,8 +190,11 @@
         <label for="lang_en">English</label><br>
         <input type="radio" id="lang_cz" name="language" value="cz">
         <label for="lang_cz">Česky</label><br>
+        <input type="radio" id="platform_pnp" name="platform" value="pnp" checked>
+        <label for="platform_pnp">Print and Play</label><br>
+        <input type="radio" id="platform_assets" name="platform" value="assets">
+        <label for="platform_assets">Screentop assets</label><br>
         <button onclick='loadFile(TextSource.user);'>Generate</button>
-        <button onclick='loadFile(TextSource.userAssets);'>Generate Assets</button>
         <button onclick='loadFile(TextSource.components);'>Other components</button>
     </div>
     <div id="container"></div>
@@ -261,7 +263,8 @@
             return card;
         }
 
-        function generate(data, language, isAssets) {
+        function generate(data, language, platform) {
+            const isAssets = platform === "assets";
             const c = $('#container');
             c.empty();
             c.removeClass();
@@ -326,11 +329,12 @@
         function loadFile(textSource) {
             const input = loadInput(textSource);
             const language = $('input[name="language"]:checked').val();
+            const platform = $('input[name="platform"]:checked').val();
             const pairs = input.map((pair) => pair.split(","));
-            if (textSource === TextSource.user || textSource === TextSource.userAssets) {
+            if (textSource === TextSource.user) {
                 pairs.sort((p1, p2) => CardTypeOrder[getCardTypeFromCardData(p1)] - CardTypeOrder[getCardTypeFromCardData(p2)]);
             }
-            generate(pairs, language, textSource === TextSource.userAssets);
+            generate(pairs, language, platform);
         }
     </script>
 </body>
