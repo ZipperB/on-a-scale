@@ -246,7 +246,7 @@
             return CardType.blank;
         }
 
-        function generateCard(data, language) {
+        function generateCard(data, language, questionText) {
             const cardType = getCardTypeFromCardData(data);
             const card = $(`<div class="card"></div>`);
 
@@ -271,11 +271,11 @@
             if (cardType === CardType.question) {
                 switch (language) {
                     case "cz":
-                        card.append(`<div class="word quest">Od 1&nbsp;do&nbsp;10 jak <span>${data[0]}</span> je ...?</div>`);
+                        card.append(`<div class="word quest">${questionText} <span>${data[0]}</span> je ...?</div>`);
                         break;
                     case "en":
                     default:
-                        card.append(`<div class="word quest">On a scale of 1&nbsp;to&nbsp;10 how <span>${data[0]}</span> is a ...?</div>`);
+                        card.append(`<div class="word quest">${questionText} <span>${data[0]}</span> is a ...?</div>`);
                 }
                 return card;
             }
@@ -284,7 +284,7 @@
             return card;
         }
 
-        function generate(data, language, platform) {
+        function generate(data, language, platform, questionText) {
             const isAssets = platform === "assets";
             const c = $('#container');
             c.empty();
@@ -304,7 +304,7 @@
                 }
                 const p = $('<div class="page"></div>');
                 chunk.map((card) => {
-                    p.append(generateCard(card, language));
+                    p.append(generateCard(card, language, questionText));
                 });
                 c.append(p);
                 chunkOffset += chunk.length;
@@ -354,11 +354,12 @@
             const platform = $('input[name="platform"]:checked').val();
             const input = loadInput(textSource, platform);
             const language = $('input[name="language"]:checked').val();
+            const questionText = $('input#question_text').val();
             const pairs = input.map((pair) => pair.split(","));
             if (textSource === TextSource.user) {
                 pairs.sort((p1, p2) => CardTypeOrder[getCardTypeFromCardData(p1)] - CardTypeOrder[getCardTypeFromCardData(p2)]);
             }
-            generate(pairs, language, platform);
+            generate(pairs, language, platform, questionText);
         }
 
         function showQuestionPresets(language) {
